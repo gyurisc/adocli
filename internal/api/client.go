@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strings"
 )
 
 const defaultAPIVersion = "7.1"
@@ -110,6 +111,42 @@ func (c *Client) Patch(path string, body, result interface{}) error {
 		return err
 	}
 	return decodeOrClose(resp, result)
+}
+
+// ProjectURL constructs a project-scoped API URL.
+func (c *Client) ProjectURL(project, path string) string {
+	orgBase := strings.TrimSuffix(c.BaseURL, "/_apis")
+	return fmt.Sprintf("%s/%s/_apis/%s", orgBase, project, path)
+}
+
+// doRaw executes an HTTP request with a caller-specified full URL and content type.
+func (c *Client) doRaw(method, rawURL, contentType string, body interface{}) (*http.Response, error) {
+	var reqBody io.Reader
+	if body != nil {
+		data, err := json.Marshal(body)
+		if err != nil {
+			return nil, fmt.Errorf("marshaling request body: %w", err)
+		}
+		reqBody = bytes.NewReader(data)
+	}
+
+	req, err := http.NewRequest(method, rawURL, reqBody)
+	if err != nil {
+		return nil, fmt.Errorf("creating request: %w", err)
+	}
+
+	req.Header.Set("Authorization", c.authHeader())
+	req.Header.Set("Content-Type", contentType)
+
+	q := req.URL.Query()
+	q.Set("api-version", c.APIVersion)
+	req.URL.RawQuery = q.Encode()
+
+	resp, err := c.HTTP.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("executing request: %w", err)
+	}
+	return resp, nil
 }
 
 // APIError represents an error response from the Azure DevOps API.
