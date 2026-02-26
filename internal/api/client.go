@@ -77,7 +77,7 @@ func decodeOrClose(resp *http.Response, result interface{}) error {
 
 	if resp.StatusCode >= 400 {
 		body, _ := io.ReadAll(resp.Body)
-		return &APIError{StatusCode: resp.StatusCode, Body: string(body)}
+		return &Error{StatusCode: resp.StatusCode, Body: string(body)}
 	}
 
 	if result != nil {
@@ -149,12 +149,12 @@ func (c *Client) doRaw(method, rawURL, contentType string, body interface{}) (*h
 	return resp, nil
 }
 
-// APIError represents an error response from the Azure DevOps API.
-type APIError struct {
+// Error represents an error response from the Azure DevOps API.
+type Error struct {
 	StatusCode int
 	Body       string
 }
 
-func (e *APIError) Error() string {
+func (e *Error) Error() string {
 	return fmt.Sprintf("Azure DevOps API error (HTTP %d): %s", e.StatusCode, e.Body)
 }

@@ -15,9 +15,9 @@ const (
 
 // Config holds ado CLI user configuration.
 type Config struct {
-	Organization string `json:"organization"`     // Azure DevOps org name or URL
-	Project      string `json:"project"`           // Default project name
-	OutputFormat string `json:"output_format"`     // "table", "json", or "plain"
+	Organization string `json:"organization"`  // Azure DevOps org name or URL
+	Project      string `json:"project"`       // Default project name
+	OutputFormat string `json:"output_format"` // "table", "json", or "plain"
 }
 
 // Path returns the full path to the config file.

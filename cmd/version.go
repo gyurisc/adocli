@@ -10,10 +10,10 @@ import (
 )
 
 type versionOutput struct {
-	Version  string `json:"version"`
-	OS       string `json:"os"`
-	Arch     string `json:"arch"`
-	GoVer    string `json:"go_version"`
+	Version string `json:"version"`
+	OS      string `json:"os"`
+	Arch    string `json:"arch"`
+	GoVer   string `json:"go_version"`
 }
 
 var versionCmd = &cobra.Command{
@@ -21,10 +21,10 @@ var versionCmd = &cobra.Command{
 	Short: "Print version information",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		info := versionOutput{
-			Version:  appVersion,
-			OS:       runtime.GOOS,
-			Arch:     runtime.GOARCH,
-			GoVer:    runtime.Version(),
+			Version: appVersion,
+			OS:      runtime.GOOS,
+			Arch:    runtime.GOARCH,
+			GoVer:   runtime.Version(),
 		}
 
 		switch OutputFormat() {
