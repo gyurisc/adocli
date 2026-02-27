@@ -102,7 +102,7 @@ func runWorkitemList(cmd *cobra.Command, args []string) error {
 
 	wiql := buildWIQL(project, wiType, state, assignedTo)
 
-	result, err := client.QueryByWiql(project, wiql)
+	result, err := client.QueryByWiql(project, wiql, top)
 	if err != nil {
 		return fmt.Errorf("querying work items: %w", err)
 	}
