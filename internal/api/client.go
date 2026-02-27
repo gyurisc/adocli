@@ -16,9 +16,14 @@ const defaultAPIVersion = "7.1"
 // Client is an Azure DevOps REST API client.
 type Client struct {
 	BaseURL    string
-	PAT        string
+	pat        string
 	APIVersion string
 	HTTP       *http.Client
+}
+
+// String returns a safe representation of the client that redacts the PAT.
+func (c *Client) String() string {
+	return fmt.Sprintf("Client{BaseURL: %s, APIVersion: %s}", c.BaseURL, c.APIVersion)
 }
 
 // NewClient creates a Client for the given Azure DevOps organization.
@@ -26,7 +31,7 @@ type Client struct {
 func NewClient(org, pat string) *Client {
 	return &Client{
 		BaseURL:    fmt.Sprintf("https://dev.azure.com/%s/_apis", org),
-		PAT:        pat,
+		pat:        pat,
 		APIVersion: defaultAPIVersion,
 		HTTP:       &http.Client{},
 	}
@@ -34,7 +39,7 @@ func NewClient(org, pat string) *Client {
 
 // authHeader returns the Basic auth header value for PAT authentication.
 func (c *Client) authHeader() string {
-	token := base64.StdEncoding.EncodeToString([]byte(":" + c.PAT))
+	token := base64.StdEncoding.EncodeToString([]byte(":" + c.pat))
 	return "Basic " + token
 }
 
