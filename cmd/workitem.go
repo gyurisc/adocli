@@ -54,23 +54,28 @@ var wiListCmd = &cobra.Command{
 	RunE:  runWorkitemList,
 }
 
+// escapeWIQL escapes single quotes in a string for safe WIQL interpolation.
+func escapeWIQL(s string) string {
+	return strings.ReplaceAll(s, "'", "''")
+}
+
 func buildWIQL(project, wiType, state, assignedTo string) string {
 	q := "SELECT [System.Id], [System.Title], [System.State], [System.WorkItemType], [System.AssignedTo] FROM WorkItems"
 
 	var conditions []string
-	conditions = append(conditions, fmt.Sprintf("[System.TeamProject] = '%s'", project))
+	conditions = append(conditions, fmt.Sprintf("[System.TeamProject] = '%s'", escapeWIQL(project)))
 
 	if wiType != "" {
-		conditions = append(conditions, fmt.Sprintf("[System.WorkItemType] = '%s'", wiType))
+		conditions = append(conditions, fmt.Sprintf("[System.WorkItemType] = '%s'", escapeWIQL(wiType)))
 	}
 	if state != "" {
-		conditions = append(conditions, fmt.Sprintf("[System.State] = '%s'", state))
+		conditions = append(conditions, fmt.Sprintf("[System.State] = '%s'", escapeWIQL(state)))
 	}
 	if assignedTo != "" {
 		if assignedTo == "@me" {
 			conditions = append(conditions, "[System.AssignedTo] = @me")
 		} else {
-			conditions = append(conditions, fmt.Sprintf("[System.AssignedTo] = '%s'", assignedTo))
+			conditions = append(conditions, fmt.Sprintf("[System.AssignedTo] = '%s'", escapeWIQL(assignedTo)))
 		}
 	}
 
@@ -170,7 +175,10 @@ func runWorkitemShow(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	project, _ := resolveProject(cmd)
+	project, err := resolveProject(cmd)
+	if err != nil {
+		return err
+	}
 
 	wi, err := client.GetWorkItem(project, id)
 	if err != nil {
@@ -289,7 +297,10 @@ func runWorkitemUpdate(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	project, _ := resolveProject(cmd)
+	project, err := resolveProject(cmd)
+	if err != nil {
+		return err
+	}
 
 	title, _ := cmd.Flags().GetString("title")
 	state, _ := cmd.Flags().GetString("state")
