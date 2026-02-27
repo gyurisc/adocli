@@ -40,9 +40,10 @@ type PatchField struct {
 }
 
 // QueryByWiql runs a WIQL query and returns matching work item references.
-func (c *Client) QueryByWiql(project, wiql string) (*WiqlResult, error) {
+// The top parameter limits the number of results returned by the server.
+func (c *Client) QueryByWiql(project, wiql string, top int) (*WiqlResult, error) {
 	body := map[string]string{"query": wiql}
-	url := c.ProjectURL(project, "wit/wiql")
+	url := c.ProjectURL(project, fmt.Sprintf("wit/wiql?$top=%d", top))
 
 	resp, err := c.doRaw(http.MethodPost, url, "application/json", body)
 	if err != nil {
